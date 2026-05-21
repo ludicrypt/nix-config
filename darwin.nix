@@ -61,15 +61,18 @@
     ];
 
     casks = [
+      "docker-desktop"
       "ghostty"
       "google-chrome"
+      "lm-studio"
+      "obsidian"
       "visual-studio-code@insiders"
     ];
 
     masApps = {
       # Format: "App Name" = appStoreID;
       # Find IDs with: mas search "app name"
-      # "Xcode" = 497799835;
+      # "Xcode" = 497799835;  # install manually from the App Store — mas fails as root
     };
   };
 
