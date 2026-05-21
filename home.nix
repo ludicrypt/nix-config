@@ -41,11 +41,11 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
+    settings = {
       "github.com" = {
-        hostname = "ssh.github.com";
-        port = 443;
-        user = "git";
+        Hostname = "ssh.github.com";
+        Port = 443;
+        User = "git";
       };
     };
   };
