@@ -7,6 +7,7 @@
 
   home.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
+    # shell utilities
     ripgrep
     fd
     bat
@@ -18,6 +19,17 @@
     tree
     wget
     httpie
+
+    # dev tools
+    gh
+    delta
+    lazygit
+    # python
+    uv
+    pixi
+    # typescript / node
+    bun
+    fnm
   ];
 
   # Make sure ~/.local/bin is on PATH so the Claude Code native binary
@@ -62,6 +74,26 @@
     };
   };
 
+  home.activation.lazygitConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p "$HOME/Library/Application Support/lazygit"
+    cat > "$HOME/Library/Application Support/lazygit/config.yml" << 'LAZYGIT_EOF'
+git:
+  paging:
+    colorArg: always
+    pager: delta --side-by-side --paging=never
+LAZYGIT_EOF
+  '';
+
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      side-by-side = true;
+      line-numbers = true;
+    };
+  };
+
   programs.git = {
     enable = true;
     settings = {
@@ -75,6 +107,8 @@
       commit.gpgSign = true;
       user.signingKey = "~/.ssh/id_ed25519.pub";
       "gpg \"ssh\"".allowedSignersFile = "~/.ssh/allowed_signers";
+      merge.conflictstyle = "diff3";
+      diff.colorMoved = "default";
     };
   };
 
@@ -93,11 +127,16 @@
     };
 
     initContent = ''
-      # any additional zsh config goes here
+      eval "$(fnm env --use-on-cd --shell zsh)"
     '';
   };
 
-  programs.starship.enable = true;  # nice prompt
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
+  programs.starship.enable = true;
   programs.fzf.enable = true;
-  programs.zoxide.enable = true;    # smarter `cd`
+  programs.zoxide.enable = true;
 }
