@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, username, lib, ... }: {
 
   home.stateVersion = "25.11";
 
@@ -23,14 +23,32 @@
     "$HOME/.local/bin"
   ];
 
+  home.activation.generateSshKey = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+      mkdir -p "$HOME/.ssh"
+      chmod 700 "$HOME/.ssh"
+      ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -C "${username}" \
+        -f "$HOME/.ssh/id_ed25519" -N ""
+    fi
+  '';
+
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+  };
+
   programs.git = {
     enable = true;
     settings = {
       user.name = "ludicrypt";
       user.email = "68418401+ludicrypt@users.noreply.github.com";
       init.defaultBranch = "main";
-      pull.rebase = true;
+      pull.rebase = false;
+      pull.ff = "only";
       push.autoSetupRemote = true;
+      gpg.format = "ssh";
+      commit.gpgSign = true;
+      user.signingKey = "~/.ssh/id_ed25519.pub";
     };
   };
 

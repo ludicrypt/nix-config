@@ -15,6 +15,9 @@
       sudo -H -u ${username} bash -c 'curl -fsSL https://claude.ai/install.sh | bash' || \
         echo "Claude Code install failed; run 'curl -fsSL https://claude.ai/install.sh | bash' manually." >&2
     fi
+
+    # "Look up & data detectors" has no nix-darwin option; write it directly.
+    sudo -H -u ${username} defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 0
   '';
 
   # System-wide packages (rare — prefer home.packages for most things)
@@ -58,14 +61,9 @@
     ];
 
     casks = [
-      #"google-chrome"
-      #"firefox"
-      #"1password"
-      #"slack"
+      "ghostty"
+      "google-chrome"
       "visual-studio-code@insiders"
-      #"rectangle"      # window management
-      #"raycast"        # spotlight replacement
-      "ghostty"        # terminal
     ];
 
     masApps = {
@@ -88,9 +86,11 @@
     NSGlobalDomain = {
       AppleInterfaceStyle = "Dark";
       ApplePressAndHoldEnabled = false;  # enable key repeat
-      InitialKeyRepeat = 15;
-      KeyRepeat = 2;
+      InitialKeyRepeat = 10;
+      KeyRepeat = 1;
       AppleShowAllExtensions = true;
+      AppleKeyboardUIMode = 3;
+      "com.apple.trackpad.scaling" = 1.5;
     };
 
     dock = {
@@ -108,15 +108,11 @@
       FXPreferredViewStyle = "Nlsv";  # list view
     };
 
-    #screencapture = {
-    #  location = "~/Screenshots";
-    #  type = "png";
-    #};
-
-    #trackpad = {
-    #  Clicking = true;
-    #  TrackpadRightClick = true;
-    #};
+    trackpad = {
+      Clicking = true;
+      TrackpadRightClick = true;
+      TrackpadThreeFingerVertSwipeGesture = 2;
+    };
   };
 
   # Required boilerplate
