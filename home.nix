@@ -30,6 +30,12 @@
       ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -C "${username}" \
         -f "$HOME/.ssh/id_ed25519" -N ""
     fi
+    # Rebuild allowed_signers from the current public key each activation
+    mkdir -p "$HOME/.ssh"
+    if [ -f "$HOME/.ssh/id_ed25519.pub" ]; then
+      echo "68418401+ludicrypt@users.noreply.github.com $(cat $HOME/.ssh/id_ed25519.pub)" \
+        > "$HOME/.ssh/allowed_signers"
+    fi
   '';
 
   programs.ssh = {
@@ -49,6 +55,7 @@
       gpg.format = "ssh";
       commit.gpgSign = true;
       user.signingKey = "~/.ssh/id_ed25519.pub";
+      "gpg \"ssh\"".allowedSignersFile = "~/.ssh/allowed_signers";
     };
   };
 
