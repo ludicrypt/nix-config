@@ -1,9 +1,12 @@
-{ pkgs, username, lib, ... }: {
+{ pkgs, username, lib, inputs, ... }: {
 
   home.stateVersion = "25.11";
 
   # User-level CLI packages (most of your stuff goes here)
+  home.file.".config/ghostty/shaders".source = inputs.ghostty-shaders;
+
   home.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
     ripgrep
     fd
     bat
@@ -36,6 +39,15 @@
       echo "68418401+ludicrypt@users.noreply.github.com $(cat $HOME/.ssh/id_ed25519.pub)" \
         > "$HOME/.ssh/allowed_signers"
     fi
+  '';
+
+  home.file.".config/ghostty/config".text = ''
+    font-family = JetBrainsMono Nerd Font Mono
+    font-size = 13
+    theme = Gruvbox Dark Hard
+    background-opacity = 0.75
+    background-blur-radius = 16
+    custom-shader = shaders/cursor_warp.glsl
   '';
 
   programs.ssh = {
