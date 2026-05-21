@@ -15,26 +15,23 @@ Personal macOS configuration managed declaratively with [Lix](https://lix.system
 
 ## Quick start — restoring on a new Mac
 
+After finishing the macOS first-boot wizard (Apple ID, Wi-Fi, etc.), run:
+
 ```bash
-# 1. macOS first-boot wizard (Apple ID, WiFi, etc.) then update macOS
-
-# 2. Install Xcode CLI tools
-xcode-select --install
-
-# 3. Install Lix (provides `nix` with flakes enabled by default)
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.lix.systems/lix | sh -s -- install
-
-# 4. New terminal, then clone this repo
-mkdir -p ~/.config
-git clone https://github.com/YOURUSER/nix-config.git ~/.config/nix-config
-cd ~/.config/nix-config
-
-# 5. First build (explicit hostname required because the Mac hasn't been
-#    renamed yet — subsequent rebuilds can use bare `--flake .`)
-sudo nix run nix-darwin -- switch --flake .#HOSTNAME
+bash <(curl -fsSL https://raw.githubusercontent.com/ludicrypt/nix-config/main/bootstrap.sh)
 ```
 
-Twenty minutes of waiting and the machine matches the source of truth.
+That's it. The script installs Xcode CLT, Lix, clones this repo, and runs the first `nix-darwin` build. It's idempotent — safe to re-run if something fails partway through.
+
+**What it does, step by step:**
+
+1. Checks you're on macOS and not running as root
+2. Installs Xcode Command Line Tools if absent (triggers the system dialog)
+3. Installs [Lix](https://lix.systems) if no `nix` is found (you'll confirm the install plan)
+4. Clones this repo to `~/.config/nix-config` (or pulls if already there)
+5. Runs `sudo nix run nix-darwin -- switch --flake .#thegibson04`
+
+Twenty minutes of downloading and the machine matches the source of truth.
 
 ## Prerequisites
 
