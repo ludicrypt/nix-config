@@ -77,7 +77,10 @@
   homebrew = {
     enable = true;
     onActivation = {
-      autoUpdate = true;
+      # Must be false when using nix-homebrew: brew tries to auto-update its taps,
+      # but nix-homebrew makes them read-only, which aborts `brew bundle` before
+      # masApps can install. See nix-darwin#1722, nix-homebrew#131.
+      autoUpdate = false;
       upgrade = true;
       cleanup = "none";  # Set to "uninstall" if you want a strict declarative regime
     };
@@ -106,7 +109,18 @@
     masApps = {
       # Format: "App Name" = appStoreID;
       # Find IDs with: mas search "app name"
-      # "Xcode" = 497799835;  # install manually from the App Store — mas fails as root
+      "Blackmagic Disk Speed Test" = 425264550;
+      "Cinebench" = 1438772273;
+      "Compressor" = 424390742;
+      "Final Cut Pro" = 424389933;
+      "Logic Pro" = 634148309;
+      "MainStage" = 634159523;
+      "Motion" = 434290957;
+      "NordVPN" = 905953485;
+      "Windows App" = 1295203466;
+      "WireGuard" = 1451685025;
+      # After install, run: sudo xcodebuild -license accept && xcode-select --install
+      "Xcode" = 497799835;
     };
   };
 
