@@ -127,6 +127,18 @@
       show-recents = false;
       tilesize = 48;
       mru-spaces = false;
+      persistent-apps = [
+        "/System/Applications/Apps.app"
+        "/Applications/Google Chrome.app"
+        "/Applications/Xcode.app"
+        "/Applications/Visual Studio Code - Insiders.app"
+        "/Applications/Ghostty.app"
+        "/Applications/LM Studio.app"
+        "/Applications/Obsidian.app"
+        "/Applications/Claude.app"
+        "/Applications/ChatGPT.app"
+        "/Applications/Codex.app"
+      ];
     };
 
     finder = {
