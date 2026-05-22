@@ -92,6 +92,7 @@
       "lm-studio"
       "obsidian"
       "ollama-app"
+      "tg-pro"
       "visual-studio-code@insiders"
     ];
 
