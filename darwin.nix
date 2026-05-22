@@ -18,6 +18,12 @@
 
     # "Look up & data detectors" has no nix-darwin option; write it directly.
     sudo -H -u ${username} defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerTapGesture -int 0
+
+    # Install Rosetta 2 if not already present (needed by Docker Desktop on Apple Silicon).
+    # oahd is the Rosetta runtime daemon; its absence means Rosetta isn't installed.
+    if ! /usr/bin/pgrep -q oahd 2>/dev/null; then
+      softwareupdate --install-rosetta --agree-to-license || true
+    fi
   '';
 
   # System-wide packages (rare — prefer home.packages for most things)
