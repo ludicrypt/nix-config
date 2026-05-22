@@ -45,15 +45,18 @@
     # No nix-darwin options exist for these; commands are idempotent so re-running on
     # every rebuild is fine. Authenticate from the client with this user's macOS password.
     #
-    # SSH is fully scriptable. Screen Sharing has two layers on modern macOS:
-    #   1. The launchd daemon (handled here via `enable` + `bootstrap` — legacy
-    #      `launchctl load -w` silently no-ops on Sonoma+).
-    #   2. A TCC/privacy "permitted" flag that can ONLY be granted by toggling
-    #      Screen Sharing (or Remote Management) ON in System Settings → General →
-    #      Sharing, or via an MDM profile. Apple's own ARDAgent `kickstart` tool
-    #      confirms this. So on a fresh Mac, do that toggle once after the first
-    #      rebuild — the daemon persistence below keeps it working afterward.
-    systemsetup -setremotelogin on &> /dev/null
+    # Note: `systemsetup -setremotelogin on` silently fails on modern macOS without
+    # Full Disk Access for the calling binary — so we drive launchd directly via
+    # `enable` + `bootstrap` (the legacy `launchctl load -w` also silently no-ops on
+    # Sonoma+). launchd socket-activates sshd, so port 22 starts listening immediately.
+    #
+    # Screen Sharing also has a TCC/privacy "permitted" flag that can ONLY be granted
+    # by toggling Screen Sharing (or Remote Management) ON in System Settings →
+    # General → Sharing, or via an MDM profile. Apple's own ARDAgent `kickstart` tool
+    # confirms this. So on a fresh Mac, do that toggle once after the first rebuild —
+    # the daemon persistence below keeps it working afterward.
+    launchctl enable system/com.openssh.sshd 2>/dev/null || true
+    launchctl bootstrap system /System/Library/LaunchDaemons/ssh.plist 2>/dev/null || true
     launchctl enable system/com.apple.screensharing 2>/dev/null || true
     launchctl bootstrap system /System/Library/LaunchDaemons/com.apple.screensharing.plist 2>/dev/null || true
 
