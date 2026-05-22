@@ -28,6 +28,7 @@
     uv
     pixi
     # typescript / node
+    nodejs  # baseline runtime for global tools (e.g. Codex CLI); fnm overrides per-project
     bun
     fnm
   ];
@@ -36,6 +37,8 @@
   # (installed via system.activationScripts in darwin.nix) is found
   home.sessionPath = [
     "$HOME/.local/bin"
+    "$HOME/.opencode/bin"  # OpenCode native install
+    "$HOME/.bun/bin"       # bun global installs (e.g. Codex CLI)
   ];
 
   home.activation.generateSshKey = lib.hm.dag.entryAfter ["writeBoundary"] ''

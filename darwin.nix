@@ -24,6 +24,22 @@
     if ! /usr/bin/pgrep -q oahd 2>/dev/null; then
       softwareupdate --install-rosetta --agree-to-license || true
     fi
+
+    # OpenCode — native curl installer, self-updates at startup via `opencode upgrade`.
+    # Installs to ~/.opencode/bin (added to sessionPath in home.nix).
+    if [ ! -f "/Users/${username}/.opencode/bin/opencode" ]; then
+      echo "Installing OpenCode for ${username}..." >&2
+      sudo -H -u ${username} bash -c 'curl -fsSL https://opencode.ai/install | bash' || \
+        echo "OpenCode install failed; run 'curl -fsSL https://opencode.ai/install | bash' manually." >&2
+    fi
+
+    # Codex CLI — installed via bun (already Nix-managed), self-updates via `codex update`.
+    # Uses bash -lc so the user's Nix profile is sourced and bun is on PATH.
+    if [ ! -f "/Users/${username}/.bun/bin/codex" ]; then
+      echo "Installing Codex CLI for ${username}..." >&2
+      sudo -H -u ${username} bash -lc 'bun add --global @openai/codex' || \
+        echo "Codex CLI install failed; run 'bun add --global @openai/codex' manually." >&2
+    fi
   '';
 
   # System-wide packages (rare — prefer home.packages for most things)
@@ -67,11 +83,15 @@
     ];
 
     casks = [
+      "chatgpt"
+      "claude"
+      "codex-app"
       "docker-desktop"
       "ghostty"
       "google-chrome"
       "lm-studio"
       "obsidian"
+      "ollama-app"
       "visual-studio-code@insiders"
     ];
 
