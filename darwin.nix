@@ -41,6 +41,31 @@
         echo "Codex CLI install failed; run 'bun add --global @openai/codex' manually." >&2
     fi
 
+    # Enable remote access from another Mac (SSH + Screen Sharing).
+    # No nix-darwin options exist for these; commands are idempotent so re-running on
+    # every rebuild is fine. Authenticate from the client with this user's macOS password.
+    #
+    # SSH is fully scriptable. Screen Sharing has two layers on modern macOS:
+    #   1. The launchd daemon (handled here via `enable` + `bootstrap` — legacy
+    #      `launchctl load -w` silently no-ops on Sonoma+).
+    #   2. A TCC/privacy "permitted" flag that can ONLY be granted by toggling
+    #      Screen Sharing (or Remote Management) ON in System Settings → General →
+    #      Sharing, or via an MDM profile. Apple's own ARDAgent `kickstart` tool
+    #      confirms this. So on a fresh Mac, do that toggle once after the first
+    #      rebuild — the daemon persistence below keeps it working afterward.
+    systemsetup -setremotelogin on &> /dev/null
+    launchctl enable system/com.apple.screensharing 2>/dev/null || true
+    launchctl bootstrap system /System/Library/LaunchDaemons/com.apple.screensharing.plist 2>/dev/null || true
+
+    # Stay reachable when asleep. `womp` = wake on magic packet (Ethernet);
+    # `tcpkeepalive` keeps connections alive during sleep so wake-on-demand works.
+    # Note: laptops with the lid closed still sleep — use a dummy HDMI dongle, or add
+    # `pmset -a disablesleep 1` to disable sleep entirely (heavy hammer).
+    pmset -a womp 1
+    pmset -a tcpkeepalive 1
+    # Desktop-only (e.g. Mac Studio): never sleep so remote access always works.
+    # pmset -a sleep 0
+
     # Restart the Dock after Homebrew casks have been installed so that
     # persistent-apps entries resolve on the first switch rather than needing a second pass.
     killall Dock 2>/dev/null || true
@@ -182,6 +207,13 @@
       TrackpadThreeFingerVertSwipeGesture = 2;
     };
   };
+
+  # Auto-recover from kernel panics so the machine comes back online without
+  # physical intervention — important when relying on remote access.
+  power.restartAfterFreeze = true;
+  # Desktop-only (Mac mini/Studio/Pro). Laptops reject this with
+  # "restarting after power failure is not supported on your machine".
+  # power.restartAfterPowerFailure = true;
 
   # Required boilerplate
   system.stateVersion = 6;
