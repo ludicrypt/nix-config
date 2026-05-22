@@ -40,6 +40,10 @@
       sudo -H -u ${username} bash -lc 'bun add --global @openai/codex' || \
         echo "Codex CLI install failed; run 'bun add --global @openai/codex' manually." >&2
     fi
+
+    # Restart the Dock after Homebrew casks have been installed so that
+    # persistent-apps entries resolve on the first switch rather than needing a second pass.
+    killall Dock 2>/dev/null || true
   '';
 
   # System-wide packages (rare — prefer home.packages for most things)
@@ -79,14 +83,16 @@
     };
 
     brews = [
-      # CLI tools that aren't in nixpkgs or are better as casks
+      "mactop"  # nixpkgs build fails in sandbox; Homebrew formula works fine
     ];
 
     casks = [
+      "brave-browser"
       "chatgpt"
       "claude"
       "codex-app"
       "docker-desktop"
+      "duckduckgo"
       "ghostty"
       "google-chrome"
       "lm-studio"
@@ -94,6 +100,7 @@
       "ollama-app"
       "tg-pro"
       "visual-studio-code@insiders"
+      "zen"
     ];
 
     masApps = {
@@ -131,6 +138,9 @@
       persistent-apps = [
         "/System/Applications/Apps.app"
         "/Applications/Google Chrome.app"
+        "/Applications/Brave Browser.app"
+        "/Applications/Zen.app"
+        "/Applications/DuckDuckGo.app"
         "/Applications/Xcode.app"
         "/Applications/Visual Studio Code - Insiders.app"
         "/Applications/Ghostty.app"

@@ -20,6 +20,11 @@
     wget
     httpie
 
+    # terminal / system monitoring
+    tmux
+    lazydocker
+    btop
+
     # dev tools
     gh
     delta
