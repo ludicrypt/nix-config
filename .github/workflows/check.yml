@@ -1,0 +1,34 @@
+name: flake check
+
+on:
+  push:
+  pull_request:
+
+# Cancel an in-progress run when a newer commit lands on the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Eval check — catches typos, bad option types, missing references.
+      - name: nix flake check
+        run: nix flake check
+
+      # Full darwin-system build — catches anything that only surfaces during
+      # a real system build. Hostname pulled from host.nix via the flake's
+      # `host` output so forkers don't need to edit this file.
+      - name: Build darwin system
+        run: |
+          HOSTNAME=$(nix eval --raw .#host.hostname)
+          nix build ".#darwinConfigurations.$HOSTNAME.system"
