@@ -15,19 +15,22 @@ Personal macOS configuration managed declaratively with [Lix](https://lix.system
 
 ## Quick start — restoring on a new Mac
 
-After finishing the macOS first-boot wizard (Apple ID, Wi-Fi, etc.):
-
-1. Grab a **fine-grained GitHub token** with read-only `Contents` access to this repo (Settings → Developer settings → Fine-grained tokens). Store it in 1Password.
-
-2. Run:
+After finishing the macOS first-boot wizard (Apple ID, Wi-Fi, etc.), run:
 
 ```bash
-TOKEN=ghp_xxx
-GITHUB_TOKEN=$TOKEN bash <(curl -fsSL -H "Authorization: token $TOKEN" \
-  https://raw.githubusercontent.com/ludicrypt/nix-config/main/bootstrap.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/ludicrypt/nix-config/main/bootstrap.sh)
 ```
 
 That's it. The script installs Xcode CLT, Lix, clones this repo, and runs the first `nix-darwin` build. It's idempotent — safe to re-run if something fails partway through.
+
+Forks can override the cloned URL, target host, and expected user via env vars:
+
+```bash
+REPO_URL=https://github.com/you/nix-config \
+FLAKE_HOSTNAME=mybox \
+EXPECTED_USER=me \
+  bash <(curl -fsSL https://raw.githubusercontent.com/you/nix-config/main/bootstrap.sh)
+```
 
 **What it does, step by step:**
 

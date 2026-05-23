@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 # bootstrap.sh — Fresh-machine setup for ludicrypt/nix-config
 #
-# This is a private repo. Fetch and run with a GitHub token:
+# Fetch and run anonymously (repo is public):
 #
-#   TOKEN=ghp_xxx
-#   bash <(curl -fsSL -H "Authorization: token $TOKEN" \
-#     https://raw.githubusercontent.com/ludicrypt/nix-config/main/bootstrap.sh)
+#   bash <(curl -fsSL https://raw.githubusercontent.com/ludicrypt/nix-config/main/bootstrap.sh)
 #
-# Pass the same token so the script can clone the repo:
+# Forks override the cloned repo URL, target host, and expected user via env vars:
 #
-#   GITHUB_TOKEN=ghp_xxx TOKEN=ghp_xxx bash <(curl ...)
+#   REPO_URL=https://github.com/you/nix-config \
+#   FLAKE_HOSTNAME=mybox \
+#   EXPECTED_USER=me \
+#     bash <(curl -fsSL https://raw.githubusercontent.com/you/nix-config/main/bootstrap.sh)
 #
-# Or set GITHUB_TOKEN separately — if unset, the clone step tries SSH instead.
 # Idempotent: safe to re-run; each step skips if already done.
 set -euo pipefail
 
-REPO_URL="https://github.com/ludicrypt/nix-config"
+REPO_URL="${REPO_URL:-https://github.com/ludicrypt/nix-config}"
 REPO_DIR="$HOME/.config/nix-config"
-FLAKE_HOSTNAME="thegibson04"
-EXPECTED_USER="ludicrypt"
+FLAKE_HOSTNAME="${FLAKE_HOSTNAME:-thegibson04}"
+EXPECTED_USER="${EXPECTED_USER:-ludicrypt}"
 NIX_BIN="/nix/var/nix/profiles/default/bin/nix"
 
 # ── Colors ────────────────────────────────────────────────────────────────────
@@ -48,7 +48,12 @@ if [[ "$USER" != "$EXPECTED_USER" ]]; then
   warn "Current user is '$USER' but host.nix expects '$EXPECTED_USER'."
   warn "The build will fail unless you update username/hostname in flake.nix first."
   read -rp "  Continue anyway? [y/N] " _reply </dev/tty
-  [[ "${_reply,,}" == "y" ]] || { echo "Aborted."; exit 1; }
+  # Use a case glob rather than ${var,,} so we work with macOS's built-in
+  # bash 3.2, which the script runs under before Nix is installed.
+  case "$_reply" in
+    [yY]) ;;
+    *)    echo "Aborted."; exit 1 ;;
+  esac
 fi
 
 # ── Xcode Command Line Tools ──────────────────────────────────────────────────
@@ -92,15 +97,8 @@ if [[ -d "$REPO_DIR/.git" ]]; then
   ok "Repo up to date"
 else
   mkdir -p "$(dirname "$REPO_DIR")"
-  if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-    info "Cloning via HTTPS with token → $REPO_DIR…"
-    git clone "https://ludicrypt:${GITHUB_TOKEN}@github.com/ludicrypt/nix-config.git" "$REPO_DIR"
-    # Remove the embedded token from the remote so it doesn't persist in .git/config
-    git -C "$REPO_DIR" remote set-url origin "$REPO_URL"
-  else
-    info "GITHUB_TOKEN not set — cloning via SSH (requires key on GitHub)…"
-    git clone "git@github.com:ludicrypt/nix-config.git" "$REPO_DIR"
-  fi
+  info "Cloning $REPO_URL → $REPO_DIR…"
+  git clone "$REPO_URL" "$REPO_DIR"
   ok "Repo cloned"
 fi
 
