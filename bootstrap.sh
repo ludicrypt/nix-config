@@ -40,13 +40,12 @@ die()  { printf '%sERROR:%s %s\n' "${_bold}${_red}"   "${_reset}" "$*" >&2; exit
 
 if [[ "$(uname -m)" != "arm64" ]]; then
   warn "Intel Mac detected."
-  warn "Before the build succeeds, update flake.nix and darwin.nix:"
-  warn "  system = \"x86_64-darwin\"   (flake.nix)"
-  warn "  nixpkgs.hostPlatform = \"x86_64-darwin\"   (darwin.nix)"
+  warn "Before the build succeeds, update host.nix:"
+  warn "  system = \"x86_64-darwin\""
 fi
 
 if [[ "$USER" != "$EXPECTED_USER" ]]; then
-  warn "Current user is '$USER' but flake.nix expects '$EXPECTED_USER'."
+  warn "Current user is '$USER' but host.nix expects '$EXPECTED_USER'."
   warn "The build will fail unless you update username/hostname in flake.nix first."
   read -rp "  Continue anyway? [y/N] " _reply </dev/tty
   [[ "${_reply,,}" == "y" ]] || { echo "Aborted."; exit 1; }

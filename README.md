@@ -6,7 +6,7 @@ Personal macOS configuration managed declaratively with [Lix](https://lix.system
 
 - **CLI tools** from nixpkgs (ripgrep, fd, bat, eza, jq, fzf, etc.)
 - **GUI apps** via Homebrew casks (VS Code Insiders, Ghostty)
-- **Mac App Store apps** via `mas` (declared in `darwin.nix`)
+- **Mac App Store apps** via `mas` (declared in `modules/darwin/homebrew.nix`)
 - **Shell, git, and tool configs** via home-manager (zsh + starship, git, fzf, zoxide)
 - **macOS system defaults** — dock, Finder, keyboard repeat, dark mode, etc.
 - **Claude Code** bootstrapped via Anthropic's native installer in a `system.activationScripts` hook (binary self-updates from there)
@@ -49,12 +49,28 @@ Twenty minutes of downloading and the machine matches the source of truth.
 
 ```
 ~/.config/nix-config/
-├── flake.nix       # Inputs (nixpkgs, nix-darwin, home-manager, nix-homebrew), outputs, and module wiring
-├── darwin.nix      # System-level config: packages, Homebrew, macOS defaults, activation scripts
-└── home.nix        # User-level config: dotfiles, shell, programs.* modules from home-manager
+├── flake.nix                  # Inputs, outputs, module wiring. Imports host.nix and threads `host` through specialArgs.
+├── host.nix                   # Single source of truth for per-machine values (username, hostname, system, git, repo).
+│                              # The ONLY file you edit to fork this config.
+├── modules/
+│   ├── darwin/
+│   │   ├── system.nix         # System services (SSH/Screen Sharing, pmset), defaults, hostname, Touch ID, Rosetta
+│   │   └── homebrew.nix       # Casks, brews, masApps, AND dock.persistent-apps (co-located with their cask paths)
+│   └── home/
+│       ├── shell.nix          # zsh + starship + fzf + zoxide + direnv + aliases
+│       ├── git.nix            # programs.git/delta/lazygit, SSH config + key generation + signing
+│       ├── editor.nix         # neovim + AstroNvim bootstrap + mutable lua/ symlink
+│       ├── terminal.nix       # Ghostty config + shaders + JetBrains Mono + tmux
+│       ├── dev.nix            # gh + language runtimes (uv/pixi/nodejs/bun/fnm)
+│       ├── cli.nix            # bat/htop programs.* + ripgrep/fd/eza/jq/yq/tree/wget/httpie/btop/lazydocker
+│       └── bootstrap.nix      # home.activation installs for self-updating CLIs (Claude Code, OpenCode, Codex)
+├── nvim/                      # AstroNvim user lua/ tree, symlinked live into ~/.config/nvim/
+├── bootstrap.sh               # Fresh-machine setup script
+├── README.md
+└── CLAUDE.md
 ```
 
-Once these files grow, split them into `modules/` and import — but flat works fine for a one-machine setup.
+The split is by **topic**, not by nix-darwin/home-manager layer — so the dock lives next to the casks that populate it, and git lives next to delta and lazygit. Each module takes `host` as a function arg (via specialArgs) so it can reference `host.username` / `host.git.email` / etc. without hardcoding.
 
 ## Daily commands
 
@@ -69,7 +85,7 @@ Once these files grow, split them into `modules/` and import — but flat works 
 | `nix run nixpkgs#<name>` | Run a package once, no install |
 | `mas search "<name>"` | Find a Mac App Store app's ID for `homebrew.masApps` |
 
-After editing `darwin.nix` or `home.nix`:
+After editing anything under `modules/`, `host.nix`, or `flake.nix`:
 
 ```bash
 cd ~/.config/nix-config
@@ -79,25 +95,37 @@ sudo darwin-rebuild switch --flake .
 
 ## Customizing this for your own use
 
-If you're forking this repo, the things you'll definitely need to change:
+If you're forking this repo, the only mandatory edit is **`host.nix`**:
 
-1. **`flake.nix`** — the `let` block:
-   ```nix
-   username = "yourusername";    # output of `whoami`
-   hostname = "your-mac-name";   # what you want the machine called
-   system = "aarch64-darwin";    # or "x86_64-darwin" for Intel
-   ```
-2. **`home.nix`** — `programs.git.settings.user.name` and `.user.email`
-3. **`darwin.nix`** — the `homebrew.casks` list (your GUI apps), `homebrew.masApps` (your App Store apps), and `system.defaults` (your preferences)
-4. **First-run command** — pass your hostname explicitly: `sudo nix run nix-darwin -- switch --flake .#YOUR-HOSTNAME`
+```nix
+{
+  username = "yourusername";              # output of `whoami`
+  hostname = "your-mac-name";             # what you want the machine called
+  system   = "aarch64-darwin";            # or "x86_64-darwin" for Intel
 
-## How Claude Code is handled
+  git = {
+    name  = "yourusername";
+    email = "you@example.com";
+  };
 
-Claude Code is unique in this config — it's the one tool not managed declaratively by Nix. Anthropic's native installer drops the binary at `~/.local/bin/claude` and the binary self-updates in the background, which is great for staying current but doesn't fit Nix's reproducibility model.
+  repo = {
+    url    = "https://github.com/you/nix-config";
+    sshUrl = "git@github.com:you/nix-config.git";
+  };
+}
+```
 
-The compromise: a `system.activationScripts.postActivation` hook in `darwin.nix` runs Anthropic's native installer once if `~/.local/bin/claude` doesn't already exist. After that first install, Claude Code manages its own updates and the activation script becomes a no-op. `home.sessionPath` in `home.nix` ensures `~/.local/bin` is on PATH so the binary is found.
+After that, the things you'll usually want to adjust are inside `modules/darwin/homebrew.nix` (your GUI apps, App Store apps, and dock entries) and `modules/darwin/system.nix` (your `system.defaults` preferences). For first-build on a fresh Mac whose hostname doesn't match `host.hostname` yet, pass it explicitly: `sudo nix run nix-darwin -- switch --flake .#YOUR-HOSTNAME`.
 
-If full declarativeness matters more than continuous auto-updates, swap the activation script for one of:
+## How Claude Code (and OpenCode, Codex) are handled
+
+Three CLIs in this config don't fit Nix's reproducibility model because they self-update from their own installers in the background: **Claude Code**, **OpenCode**, and **Codex**. Their installers drop binaries at `~/.local/bin/claude`, `~/.opencode/bin/opencode`, and `~/.bun/bin/codex` respectively, and the binaries auto-update.
+
+The compromise: `modules/home/bootstrap.nix` contains three `home.activation` entries that run the upstream installers once if the binaries are absent. After that first install, the tools manage their own updates and the activation scripts become no-ops. `home.sessionPath` (same file) ensures the three install directories are on PATH so the binaries are found.
+
+Why `home.activation` and not `system.activationScripts`? These tools install into the user's `~/`, so running activation as the user is the natural fit — and avoids the `sudo -H -u $username` gymnastics needed when the root-run system activation reaches into a user's home.
+
+If full declarativeness matters more than continuous auto-updates for Claude Code specifically, swap the activation entry for one of:
 
 - `homebrew.casks = [ "claude-code" ];` — updates whenever you `darwin-rebuild switch`, lags upstream by hours to days because of homebrew-cask review
 - The [sadjow/claude-code-nix](https://github.com/sadjow/claude-code-nix) overlay — `pkgs.claude-code` from a flake whose CI checks Anthropic releases hourly and bumps the package; updates pulled in via `nix flake update`
