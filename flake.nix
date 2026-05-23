@@ -24,23 +24,40 @@
 
   outputs = inputs@{ self, nixpkgs, nix-darwin, home-manager, nix-homebrew, ... }:
   let
-    # CHANGE THESE
-    username = "ludicrypt";
-    hostname = "thegibson04";
-    system = "aarch64-darwin";  # or "x86_64-darwin" on Intel
+    # All host-specific values (username, hostname, system, git, repo) live in
+    # ./host.nix — the only file you edit when forking this config.
+    host = import ./host.nix;
   in {
-    darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
-      inherit system;
-      specialArgs = { inherit inputs username hostname; };
+    # Exposed so tooling (bootstrap.sh) can read values via `nix eval --raw .#host.hostname`
+    inherit host;
+
+    darwinConfigurations.${host.hostname} = nix-darwin.lib.darwinSystem {
+      inherit (host) system;
+      specialArgs = { inherit inputs host; };
       modules = [
-        ./darwin.nix
+        ./modules/darwin/system.nix
+        ./modules/darwin/homebrew.nix
         nix-homebrew.darwinModules.nix-homebrew
         home-manager.darwinModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.${username} = import ./home.nix;
-          home-manager.extraSpecialArgs = { inherit inputs username; };
+          # Back up pre-existing files instead of halting activation when something
+          # outside home-manager's control (e.g. a `gh auth login` writing config.yml)
+          # is in the way. Backups land as foo.hm-backup next to the original.
+          home-manager.backupFileExtension = "hm-backup";
+          home-manager.users.${host.username} = {
+            imports = [
+              ./modules/home/shell.nix
+              ./modules/home/git.nix
+              ./modules/home/editor.nix
+              ./modules/home/terminal.nix
+              ./modules/home/dev.nix
+              ./modules/home/cli.nix
+              ./modules/home/bootstrap.nix
+            ];
+          };
+          home-manager.extraSpecialArgs = { inherit inputs host; };
         }
       ];
     };
