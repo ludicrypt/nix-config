@@ -50,6 +50,17 @@
     };
   };
 
+  # Global gitignore — applied on top of each repo's own .gitignore, no opt-in
+  # needed. For "noise everywhere": OS turds, editor swap files, dev caches.
+  programs.git.ignores = [
+    ".DS_Store"
+    "*.swp"
+    ".idea/"
+    ".vscode/"
+    ".direnv/"
+    ".envrc.local"
+  ];
+
   programs.git = {
     enable = true;
     settings = {

@@ -77,9 +77,11 @@ The split is by **topic**, not by nix-darwin/home-manager layer — so the dock 
 | Command | Purpose |
 |---|---|
 | `sudo darwin-rebuild switch --flake ~/.config/nix-config` | Apply config changes |
+| `sudo darwin-rebuild build --flake ~/.config/nix-config` | Build the new system without activating — safe pre-flight before risky changes |
 | `sudo darwin-rebuild switch --rollback` | Undo the last switch |
 | `darwin-rebuild --list-generations` | See past generations |
 | `nix flake update` | Bump all pinned inputs to latest |
+| `nix flake check` | Evaluate the flake without building — fast sanity check |
 | `nix search nixpkgs <name>` | Find a package in nixpkgs |
 | `nix shell nixpkgs#<name>` | Open a shell with a package, no install |
 | `nix run nixpkgs#<name>` | Run a package once, no install |

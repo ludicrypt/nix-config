@@ -114,8 +114,35 @@
   # Required boilerplate
   system.stateVersion = 6;
   nixpkgs.hostPlatform = host.system;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Use Touch ID for sudo
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    # @admin + the configured user can talk to nix-daemon, use binary caches,
+    # and substitute paths without sudo prompts.
+    trusted-users = [ "@admin" host.username ];
+    max-jobs = "auto";
+    builders-use-substitutes = true;
+    # Hardlink identical files in the store as they're added (continuous dedup);
+    # complements the periodic nix.optimise.automatic pass below.
+    auto-optimise-store = true;
+    # Silences the constant "Git tree is dirty" warning when editing the flake repo.
+    warn-dirty = false;
+  };
+
+  # Weekly garbage collection — without this /nix/store grows unboundedly on a
+  # daily-driver Mac with frequent rebuilds. Sundays at 03:00 keeps the last 30
+  # days of generations around as a rollback safety net.
+  nix.gc = {
+    automatic = true;
+    interval = { Weekday = 0; Hour = 3; Minute = 0; };
+    options = "--delete-older-than 30d";
+  };
+
+  # Periodic store-wide optimisation in case auto-optimise-store missed any
+  # duplicates. Cheap; just runs `nix-store --optimise` on a schedule.
+  nix.optimise.automatic = true;
+
+  # Use Touch ID and Apple Watch for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
+  security.pam.services.sudo_local.watchIdAuth = true;
 }
