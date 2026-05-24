@@ -76,6 +76,7 @@ else
   ok "Lix installed"
 fi
 
+set +u
 # Source Nix profile into this shell session
 for _sh in \
   "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" \
@@ -84,6 +85,7 @@ for _sh in \
   # shellcheck source=/dev/null
   [[ -f "$_sh" ]] && { source "$_sh"; break; }
 done
+set -u
 
 # Resolve the nix binary — prefer the full path so sudo finds it too
 _nix="$NIX_BIN"
