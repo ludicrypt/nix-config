@@ -40,12 +40,18 @@
     # `pmset -a disablesleep 1` to disable sleep entirely (heavy hammer).
     pmset -a womp 1
     pmset -a tcpkeepalive 1
+    # Display sleep timeout, split by power source (no nix-darwin option for the
+    # battery/adapter split — power.sleep.display only sets one value for all sources).
+    pmset -b displaysleep 5   # on battery: 5 min
+    pmset -c displaysleep 10  # on power adapter: 10 min
     # Desktop-only (e.g. Mac Studio): never sleep so remote access always works.
     # pmset -a sleep 0
 
     # Restart the Dock after Homebrew casks have been installed so that
     # persistent-apps entries resolve on the first switch rather than needing a second pass.
     killall Dock 2>/dev/null || true
+    # Restart Control Center so menu-bar toggles (Sound/Bluetooth/battery %) apply without a logout.
+    killall ControlCenter 2>/dev/null || true
   '';
 
   # System-wide packages (rare — prefer home.packages for most things)
@@ -86,7 +92,17 @@
       KeyRepeat = 1;
       AppleShowAllExtensions = true;
       AppleKeyboardUIMode = 3;
+      "com.apple.keyboard.fnState" = true;  # F1/F2/etc. act as standard function keys
       "com.apple.trackpad.scaling" = 1.5;
+      AppleICUForce24HourTime = true;  # system-wide 24h time; the menu-bar clock follows this, not menuExtraClock.Show24Hour
+
+      # Text-input substitutions. Quotes/dashes off so they don't mangle code;
+      # period/capitalization/spelling left on for prose.
+      NSAutomaticQuoteSubstitutionEnabled = false;
+      NSAutomaticDashSubstitutionEnabled = false;
+      NSAutomaticPeriodSubstitutionEnabled = true;
+      NSAutomaticCapitalizationEnabled = true;
+      NSAutomaticSpellingCorrectionEnabled = true;
     };
 
     finder = {
@@ -102,6 +118,47 @@
       TrackpadRightClick = true;
       TrackpadThreeFingerVertSwipeGesture = 2;
     };
+
+    # Menu-bar icons (Control Center submodule; true = show in menu bar).
+    controlcenter = {
+      Sound = true;
+      Bluetooth = true;
+      BatteryShowPercentage = false;
+    };
+
+    # Menu-bar clock format.
+    menuExtraClock = {
+      Show24Hour = true;
+      ShowDate = 1;          # 0 = when space allows, 1 = always, 2 = never
+      ShowDayOfWeek = false;
+      ShowSeconds = false;
+    };
+
+    WindowManager = {
+      GloballyEnabled = false;                  # keep Stage Manager off
+      EnableStandardClickToShowDesktop = false; # don't hide all windows when clicking the wallpaper
+    };
+
+    loginwindow = {
+      GuestEnabled = false;
+    };
+
+    # NOTE: the lock-screen grace period ("require password after display
+    # sleeps") is NOT settable here on macOS 26 — the OS ignores
+    # com.apple.screensaver askForPasswordDelay (verified: sysadminctl reports
+    # its own 300s delay regardless of this key). The real control is
+    #   sysadminctl -screenLock immediate -password -
+    # which prompts for the password and can't be expressed declaratively. Run
+    # it once by hand; there's no nix-darwin option for it.
+
+    # NOTE: the Spotlight menu-bar icon can't be controlled here on macOS 26.
+    # Its visibility key (com.apple.Spotlight "NSStatusItem VisibleCC Item-0")
+    # is owned by the Spotlight agent, which rewrites it back to 1 on every
+    # launch — verified that a `defaults write … 0` reverts on login/agent
+    # restart. The legacy `com.apple.systemuiserver menuExtras` / Menu Extras
+    # bundle trick is also dead (no Spotlight.menu exists). Only fix is the
+    # System Settings > Menu Bar toggle for Spotlight, which signals the agent
+    # to change its own state and persists.
   };
 
   # Auto-recover from kernel panics so the machine comes back online without

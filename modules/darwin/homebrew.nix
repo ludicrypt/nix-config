@@ -77,6 +77,7 @@
     show-recents = false;
     tilesize = 48;
     mru-spaces = false;
+    wvous-bl-corner = 10;  # bottom-left hot corner: Put Display to Sleep
     persistent-apps = [
       "/System/Applications/Apps.app"
       "/Applications/Google Chrome.app"
