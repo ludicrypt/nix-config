@@ -2,6 +2,13 @@
 
   # Generate an SSH key on first activation and (re-)build allowed_signers from it
   # each rebuild so SSH-based git commit signing keeps working when the key rotates.
+  #
+  # WARNING: On a fresh-machine restore this generates a NEW key — it does not
+  # recover the GitHub-registered key from the previous machine. If you want to
+  # keep using the same key (and avoid having to add a new public key to GitHub),
+  # restore ~/.ssh/id_ed25519 and id_ed25519.pub from backup BEFORE the first
+  # `darwin-rebuild switch`. The `[ ! -f ... ]` guard below then skips the
+  # ssh-keygen call.
   home.activation.generateSshKey = lib.hm.dag.entryAfter ["writeBoundary"] ''
     if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
       mkdir -p "$HOME/.ssh"

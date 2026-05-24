@@ -23,6 +23,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/ludicrypt/nix-config/main/bo
 
 That's it. The script installs Xcode CLT, Lix, clones this repo, and runs the first `nix-darwin` build. It's idempotent — safe to re-run if something fails partway through.
 
+> **SSH keys aren't restored.** The first rebuild generates a *new* `~/.ssh/id_ed25519`, which means your old GitHub-registered key isn't recovered. If you want to keep using the same key, restore `~/.ssh/id_ed25519` and `id_ed25519.pub` from backup *before* running `bootstrap.sh`. The activation script's `[ ! -f ... ]` guard then leaves the restored key alone.
+
 Forks can override the cloned URL, target host, and expected user via env vars:
 
 ```bash

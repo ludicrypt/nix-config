@@ -8,6 +8,12 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    history = {
+      size = 100000;
+      save = 100000;
+      extended = true;     # writes start time + duration; `fc -li` shows timestamps
+    };
+
     shellAliases = {
       l = "eza -la --git";
       ll = "eza -la --git";
