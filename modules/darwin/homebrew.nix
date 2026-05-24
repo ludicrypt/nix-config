@@ -38,8 +38,17 @@
     masApps = {
       # Format: "App Name" = appStoreID;
       # Find IDs with: mas search "app name"
+      #
+      # Family Sharing caveat: `mas install` uses a StoreKit endpoint that
+      # can only initiate downloads for apps the current Apple ID directly
+      # purchased. Family-Sharing-shared apps fail on first bootstrap with
+      # "No downloads initiated for ADAM ID …" — install those manually via
+      # the App Store GUI once, then subsequent rebuilds see them present
+      # and no-op. See mas-cli/mas#164. The Pro Apps bundle below is the
+      # affected group on this machine.
       "Blackmagic Disk Speed Test" = 425264550;
       "Cinebench" = 1438772273;
+      # Apple Pro Apps — Family Sharing, install manually on first bootstrap
       "Compressor" = 424390742;
       "Final Cut Pro" = 424389933;
       "Logic Pro" = 634148309;
