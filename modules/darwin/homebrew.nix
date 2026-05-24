@@ -30,6 +30,7 @@
       "mx-power-gadget"
       "obsidian"
       "ollama-app"
+      "orbstack"
       "tg-pro"
       "visual-studio-code@insiders"
       "zen"
