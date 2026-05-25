@@ -79,6 +79,9 @@
     tilesize = 48;
     mru-spaces = false;
     wvous-bl-corner = 10;  # bottom-left hot corner: Put Display to Sleep
+    # App Exposé via three-finger swipe down (pairs with the existing
+    # trackpad.TrackpadThreeFingerVertSwipeGesture = 2 in system.nix).
+    showAppExposeGestureEnabled = true;
     persistent-apps = [
       "/System/Applications/Apps.app"
       "/Applications/Google Chrome.app"

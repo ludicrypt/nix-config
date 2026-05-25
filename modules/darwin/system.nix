@@ -44,6 +44,9 @@
     # battery/adapter split — power.sleep.display only sets one value for all sources).
     pmset -b displaysleep 5   # on battery: 5 min
     pmset -c displaysleep 10  # on power adapter: 10 min
+    # Energy Mode on power adapter (no nix-darwin option). powermode: 0 = automatic, 1 = low, 2 = high.
+    # Battery left at the macOS default (Automatic) — not set explicitly.
+    pmset -c powermode 2      # on power adapter: High Power
     # Desktop-only (e.g. Mac Studio): never sleep so remote access always works.
     # pmset -a sleep 0
 
