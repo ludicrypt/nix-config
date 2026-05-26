@@ -1,15 +1,15 @@
 { pkgs, lib, ... }: {
 
-  # PATH additions for the three self-updating CLIs installed below.
-  # Claude Code lives at ~/.local/bin; OpenCode at ~/.opencode/bin; Codex (installed
-  # via bun) at ~/.bun/bin.
+  # PATH additions for the self-updating coding-agent CLIs installed below.
+  # Claude Code lives at ~/.local/bin; OpenCode at ~/.opencode/bin; Codex and Pi
+  # (installed via bun) at ~/.bun/bin.
   home.sessionPath = [
     "$HOME/.local/bin"
     "$HOME/.opencode/bin"
     "$HOME/.bun/bin"
   ];
 
-  # These three CLIs self-update from their own installers, so Nix can't sanely
+  # These CLIs self-update from their own installers, so Nix can't sanely
   # manage their versions. Trigger the install once if absent, then they
   # auto-update in the background.
   #
@@ -48,6 +48,16 @@
       echo "Installing Codex CLI..." >&2
       ${pkgs.bun}/bin/bun add --global @openai/codex || \
         echo "Codex CLI install failed; run 'bun add --global @openai/codex' manually." >&2
+    fi
+  '';
+
+  home.activation.installPiCli = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    if [ ! -f "$HOME/.bun/bin/pi" ]; then
+      echo "Installing Pi Coding Agent..." >&2
+      # --ignore-scripts per Pi's own install docs: skips the postinstall that
+      # tries to set up a standalone Node; bun runs the CLI itself.
+      ${pkgs.bun}/bin/bun add --global --ignore-scripts @earendil-works/pi-coding-agent || \
+        echo "Pi install failed; run 'bun add -g --ignore-scripts @earendil-works/pi-coding-agent' manually." >&2
     fi
   '';
 }
