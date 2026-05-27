@@ -14,24 +14,6 @@
 
     brews = [
       "mactop"  # nixpkgs build fails in sandbox; Homebrew formula works fine
-      # ThermalForge — open-source fan control for Apple Silicon (replaces TG Pro).
-      # DISABLED 2026-05-26: the formula is broken upstream. It builds git tag
-      # v0.1.0, which predates ThermalForge.icns + Scripts/generate-icon.swift, so
-      # the icon-generation step fails ("error opening input file
-      # 'Scripts/generate-icon.swift'"). The fix exists only on the unreleased main
-      # branch — see https://github.com/ProducerGuy/homebrew-tap/issues/1.
-      #
-      # Installed manually from source instead (upstream's ./setup.sh, built from
-      # main): CLI at /usr/local/bin/thermalforge, menu-bar app in /Applications,
-      # daemon at /Library/LaunchDaemons/com.thermalforge.daemon.plist. Update it
-      # with `git pull && ./setup.sh` in the checkout (~/Developer/ThermalForge).
-      #
-      # BEFORE re-enabling this brew (once a fixed release is tagged): first run
-      # `sudo /usr/local/bin/thermalforge uninstall` to remove the source install,
-      # otherwise the brew copy (/opt/homebrew/bin) and the source copy fight over
-      # the same daemon plist. The dormant setup step in system.nix (postActivation)
-      # then takes over the one-time `thermalforge install`.
-      # "ProducerGuy/tap/thermalforge"
       # MTPLX — native MTP speculative-decoding runtime for MLX on Apple Silicon.
       # CLI only; first run `mtplx start` launches an interactive setup wizard.
       "youssofal/mtplx/mtplx"
@@ -52,7 +34,7 @@
       "obsidian"
       "ollama-app"
       "orbstack"
-      # "tg-pro"  # uninstalled 2026-05-26 to trial ThermalForge (see brews); kept commented in case we switch back
+      "tg-pro"
       "visual-studio-code@insiders"
       "zen"
     ];

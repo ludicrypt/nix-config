@@ -15,21 +15,6 @@
       softwareupdate --install-rosetta --agree-to-license || true
     fi
 
-    # ThermalForge fan-control daemon. Homebrew (modules/darwin/homebrew.nix)
-    # installs the CLI + menu-bar app, but the privileged fan-control daemon
-    # needs a one-time `thermalforge install` that writes a LaunchDaemon plist
-    # and bootstraps it via launchctl. postActivation runs as root and after
-    # Homebrew, so the binary is present; guard on the plist so it runs once.
-    # Dormant: the thermalforge brew is disabled (broken formula — see
-    # homebrew.nix) and ThermalForge is currently installed manually from source,
-    # which already created the daemon plist and puts the CLI at /usr/local/bin
-    # (not /opt/homebrew/bin). Both guards below therefore fail, so this no-ops.
-    # It activates only if the brew is later re-enabled (installs to
-    # /opt/homebrew/bin) AND no daemon plist exists yet.
-    if [ -x /opt/homebrew/bin/thermalforge ] && [ ! -f /Library/LaunchDaemons/com.thermalforge.daemon.plist ]; then
-      /opt/homebrew/bin/thermalforge install || true
-    fi
-
     # Enable remote access from another Mac (SSH + Screen Sharing).
     # No nix-darwin options exist for these; commands are idempotent so re-running on
     # every rebuild is fine. Authenticate from the client with this user's macOS password.
