@@ -24,6 +24,10 @@
       # lighter install than the nixpkgs python/mlx closure and to keep the stack
       # together; onActivation.upgrade advances it every switch (`brew pin` to hold).
       "mlx-lm"
+      # hf — huggingface_hub CLI for pulling model weights (provides both `hf` and the
+      # legacy `huggingface-cli`; bundles hf_xet for accelerated downloads). Canonical
+      # name is `hf`, not the `huggingface-cli` alias, so brew bundle tracks it cleanly.
+      "hf"
       # MTPLX — native MTP speculative-decoding runtime for MLX on Apple Silicon.
       # CLI only; first run `mtplx start` launches an interactive setup wizard.
       "youssofal/mtplx/mtplx"
