@@ -60,4 +60,20 @@
         echo "Pi install failed; run 'bun add -g --ignore-scripts @earendil-works/pi-coding-agent' manually." >&2
     fi
   '';
+
+  home.activation.installCopilotCli = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    if [ ! -f "$HOME/.local/bin/copilot" ]; then
+      echo "Installing GitHub Copilot CLI..." >&2
+      # Same restricted-PATH gotcha as installClaudeCode: the installer's internal
+      # `command -v curl` / `command -v tar` checks run in the piped bash subshell
+      # and inherit our PATH, so /usr/bin must be on it. Non-root PREFIX defaults
+      # to $HOME/.local, landing the binary at ~/.local/bin/copilot (already on path).
+      # Putting ~/.local/bin on PATH here also makes the installer's final
+      # `command -v copilot` succeed, so it skips its interactive "add to PATH?"
+      # prompt entirely — keeping the activation unattended.
+      export PATH="$HOME/.local/bin:/usr/bin:/bin:$PATH"
+      /usr/bin/curl -fsSL https://gh.io/copilot-install | bash || \
+        echo "Copilot CLI install failed; run 'curl -fsSL https://gh.io/copilot-install | bash' manually." >&2
+    fi
+  '';
 }
