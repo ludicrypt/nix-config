@@ -14,6 +14,16 @@
 
     brews = [
       "mactop"  # nixpkgs build fails in sandbox; Homebrew formula works fine
+      # ── Local LLM inference stack (see ~/Development/agents/PLAN2.md) ──
+      # llama.cpp — mainline llama-server with --spec-type draft-mtp (Metal MTP spec
+      # decoding). On brew, not nixpkgs: nixpkgs-unstable still ships b9190, short of
+      # the b9203 (2026-05-16) MTP merge; the brew bottle (b9310+) has it. onActivation
+      # .upgrade keeps it current. Verify: llama-server --help | grep spec-type
+      "llama.cpp"
+      # mlx-lm — mlx_lm.server for plain MLX dense/MoE weights (0.31.3). On brew for a
+      # lighter install than the nixpkgs python/mlx closure and to keep the stack
+      # together; onActivation.upgrade advances it every switch (`brew pin` to hold).
+      "mlx-lm"
       # MTPLX — native MTP speculative-decoding runtime for MLX on Apple Silicon.
       # CLI only; first run `mtplx start` launches an interactive setup wizard.
       "youssofal/mtplx/mtplx"

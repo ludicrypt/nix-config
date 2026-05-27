@@ -175,6 +175,22 @@
   system.stateVersion = 6;
   nixpkgs.hostPlatform = host.system;
 
+  # litellm (modules/home/dev.nix) pulls in python a2a-sdk, whose test suite errors
+  # against this pin's FastAPI version (pickling of FastAPI.setup.<locals>.openapi —
+  # the package itself is fine). There's no aarch64-darwin cache bottle, so it builds
+  # from source and the failing tests abort the build. Skip its checks so litellm can
+  # build; remove once nixpkgs fixes the a2a-sdk test. Reaches home-manager pkgs too
+  # via home-manager.useGlobalPkgs = true in flake.nix.
+  nixpkgs.overlays = [
+    (final: prev: {
+      pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+        (pyfinal: pyprev: {
+          a2a-sdk = pyprev.a2a-sdk.overridePythonAttrs (_: { doCheck = false; });
+        })
+      ];
+    })
+  ];
+
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     # @admin + the configured user can talk to nix-daemon, use binary caches,
