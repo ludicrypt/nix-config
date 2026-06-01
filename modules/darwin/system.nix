@@ -44,6 +44,11 @@
     # battery/adapter split — power.sleep.display only sets one value for all sources).
     pmset -b displaysleep 5   # on battery: 5 min
     pmset -c displaysleep 10  # on power adapter: 10 min
+    # "Prevent automatic sleeping on power adapter" (Battery > Options): disable full
+    # system sleep on AC. No nix-darwin option splits sleep by source (power.sleep.computer
+    # sets one value for all sources), so set it via pmset. Display still sleeps per the
+    # displaysleep above; only system sleep is disabled while on the adapter.
+    pmset -c sleep 0
     # Energy Mode on power adapter (no nix-darwin option). powermode: 0 = automatic, 1 = low, 2 = high.
     # Battery left at the macOS default (Automatic) — not set explicitly.
     pmset -c powermode 2      # on power adapter: High Power
@@ -140,6 +145,23 @@
     WindowManager = {
       GloballyEnabled = false;                  # keep Stage Manager off
       EnableStandardClickToShowDesktop = false; # don't hide all windows when clicking the wallpaper
+      StandardHideWidgets = true;               # Desktop & Dock > Show Widgets > On Desktop: Off
+    };
+
+    # NOTE: Accessibility > Zoom > "Use scroll gesture with modifier keys to zoom"
+    # (universalaccess.closeViewScrollWheelToggle) is intentionally NOT set here.
+    # com.apple.universalaccess is a TCC-protected domain — `defaults write` to it
+    # fails ("Could not write domain com.apple.universalaccess; exiting") and ABORTS
+    # the whole switch unless the terminal running darwin-rebuild has Full Disk Access.
+    # Set it by hand in System Settings, or grant the terminal FDA and re-add the option.
+
+    # Settings without a dedicated nix-darwin option, written to their raw domains.
+    CustomUserPreferences = {
+      # Desktop & Dock > "Close windows when quitting an application": Off.
+      # The toggle is inverted — Off means windows ARE kept/restored, so the key is true.
+      NSGlobalDomain = {
+        NSQuitAlwaysKeepsWindows = true;
+      };
     };
 
     loginwindow = {

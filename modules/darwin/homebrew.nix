@@ -48,6 +48,7 @@
       "obsidian"
       "ollama-app"
       "orbstack"
+      "spotify"
       "tg-pro"
       "visual-studio-code@insiders"
       "zen"
