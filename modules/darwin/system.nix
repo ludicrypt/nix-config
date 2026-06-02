@@ -161,6 +161,9 @@
       # The toggle is inverted — Off means windows ARE kept/restored, so the key is true.
       NSGlobalDomain = {
         NSQuitAlwaysKeepsWindows = true;
+        # Hidden feature: drag a window from anywhere in it by holding Ctrl+Cmd
+        # and click-dragging (not just the title bar). No System Settings UI for this.
+        NSWindowShouldDragOnGesture = true;
       };
     };
 
