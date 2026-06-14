@@ -34,6 +34,8 @@
     ];
 
     casks = [
+      "autodesk-fusion"
+      "bambu-studio"
       "brave-browser"
       "chatgpt"
       "claude"
@@ -114,6 +116,10 @@
       "/Applications/Claude.app"
       "/Applications/ChatGPT.app"
       "/Applications/Codex.app"
+      # Fusion's cask only installs a downloader; the real app lands in the
+      # user's ~/Applications after the installer runs.
+      "/Users/${host.username}/Applications/Autodesk Fusion.app"
+      "/Applications/BambuStudio.app"
     ];
   };
 }
