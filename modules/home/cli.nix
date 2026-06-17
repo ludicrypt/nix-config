@@ -17,5 +17,11 @@
     # system monitoring
     btop
     lazydocker
+
+    # media
+    yt-dlp
+    # plain ffmpeg (cached binary); ffmpeg-full builds from source on
+    # aarch64-darwin and its codec deps' test suites get SIGKILLed in the sandbox.
+    ffmpeg
   ];
 }
