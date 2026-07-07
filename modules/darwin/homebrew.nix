@@ -12,6 +12,17 @@
       cleanup = "none";  # Set to "uninstall" if you want a strict declarative regime
     };
 
+    taps = [
+      # mlx-serve's tap repo is named `mlx-serve`, not the conventional
+      # `homebrew-mlx-serve`, so the default user/tap → homebrew-<tap>
+      # resolution can't find it. Pin the explicit clone URL, matching the
+      # README's `brew tap ddalcu/mlx-serve https://github.com/ddalcu/mlx-serve`.
+      {
+        name = "ddalcu/mlx-serve";
+        clone_target = "https://github.com/ddalcu/mlx-serve";
+      }
+    ];
+
     brews = [
       "mactop"  # nixpkgs build fails in sandbox; Homebrew formula works fine
       # ── Local LLM inference stack (see ~/Development/agents/PLAN2.md) ──
@@ -31,6 +42,9 @@
       # MTPLX — native MTP speculative-decoding runtime for MLX on Apple Silicon.
       # CLI only; first run `mtplx start` launches an interactive setup wizard.
       "youssofal/mtplx/mtplx"
+      # mlx-serve — MLX inference server (CLI). From the ddalcu/mlx-serve tap
+      # declared above; pairs with the mlx-core menu bar app cask.
+      "mlx-serve"
     ];
 
     casks = [
@@ -46,6 +60,9 @@
       "ghostty"
       "google-chrome"
       "lm-studio"
+      # mlx-core — menu bar GUI for mlx-serve (ddalcu/mlx-serve tap). Menu bar
+      # app, so intentionally not pinned to the dock below.
+      "mlx-core"
       "mx-power-gadget"
       "obsidian"
       "ollama-app"
