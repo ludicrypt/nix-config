@@ -23,7 +23,9 @@
     };
 
     initContent = ''
-      eval "$(fnm env --use-on-cd --shell zsh)"
+      # --resolve-engines=false: don't let a project's package.json "engines"
+      # field trigger fnm to install/switch Node over the nix-managed one.
+      eval "$(fnm env --use-on-cd --resolve-engines=false --shell zsh)"
     '';
   };
 
