@@ -49,10 +49,15 @@
     enable = true;
     settings = {
       git = {
-        paging = {
-          colorArg = "always";
-          pager = "delta --side-by-side --paging=never";
-        };
+        # lazygit 0.61 replaced the single `git.paging` object with a `pagers`
+        # array (cycle with the CyclePagers keybinding). It can't auto-migrate
+        # here — the config file is a read-only nix store symlink.
+        pagers = [
+          {
+            colorArg = "always";
+            pager = "delta --side-by-side --paging=never";
+          }
+        ];
       };
     };
   };
