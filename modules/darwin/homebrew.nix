@@ -39,7 +39,6 @@
       "brave-browser"
       "chatgpt"
       "claude"
-      "codex-app"
       "docker-desktop"
       "duckduckgo"
       "geekbench"
