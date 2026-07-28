@@ -26,6 +26,13 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
+    # Lima rewrites <instance>/ssh.config on every VM start, and the Port it
+    # records is a host-side forward chosen at boot — including the file keeps
+    # the `lima-<instance>` aliases live instead of pinning a stale port here.
+    # Tools that take a host alias (herdr --remote, scp, rsync) resolve through
+    # ~/.ssh/config, so the alias has to be reachable from it; `ssh -F` doesn't
+    # help them. A glob matching nothing is not an error.
+    includes = [ "/Users/${host.username}/.lima/*/ssh.config" ];
     settings = {
       "github.com" = {
         Hostname = "ssh.github.com";
