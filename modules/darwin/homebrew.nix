@@ -14,6 +14,17 @@
 
     brews = [
       "mactop"  # nixpkgs build fails in sandbox; Homebrew formula works fine
+      # ── Agent tooling ──
+      # herdr — terminal multiplexer for coding agents. Not in nixpkgs. Its
+      # --remote flag resolves host aliases through ~/.ssh/config, which is why
+      # modules/home/git.nix includes Lima's generated ssh.config.
+      "herdr"
+      # omp — coding agent. Tap formula, so it needs the full name to stay
+      # unambiguous in the Brewfile (same as mtplx below).
+      "can1357/tap/omp"
+      # lima — Linux VMs; backs the lima-* ssh aliases. nixpkgs has it (2.1.1)
+      # but trails the brew formula (2.2.0), and the VZ backend moves fast.
+      "lima"
       # ── Local LLM inference stack (see ~/Development/agents/PLAN2.md) ──
       # llama.cpp — mainline llama-server with --spec-type draft-mtp (Metal MTP spec
       # decoding). On brew, not nixpkgs: nixpkgs-unstable still ships b9190, short of
@@ -24,6 +35,8 @@
       # lighter install than the nixpkgs python/mlx closure and to keep the stack
       # together; onActivation.upgrade advances it every switch (`brew pin` to hold).
       "mlx-lm"
+      # mlx-c — C API for MLX, for building native MLX consumers. Not in nixpkgs.
+      "mlx-c"
       # hf — huggingface_hub CLI for pulling model weights (provides both `hf` and the
       # legacy `huggingface-cli`; bundles hf_xet for accelerated downloads). Canonical
       # name is `hf`, not the `huggingface-cli` alias, so brew bundle tracks it cleanly.
