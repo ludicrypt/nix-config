@@ -17,6 +17,7 @@
     theme = Gruvbox Dark Hard
     background-opacity = 0.75
     background-blur-radius = 16
+    shell-integration-features = ssh-env,ssh-terminfo
     # Disabled — any custom shader forces a continuous GPU redraw loop while focused
     # (~30% GPU here); custom-shader-animation = false does not gate it. Known Ghostty
     # limitation (ghostty-org/ghostty#11928, discussions #8818/#10678).
