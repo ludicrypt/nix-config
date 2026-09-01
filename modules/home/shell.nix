@@ -14,10 +14,11 @@
       extended = true;     # writes start time + duration; `fc -li` shows timestamps
     };
 
+    # programs.eza supplies ls/ll/la/lt/lla at mkDefault priority, and folds --git
+    # into the `eza` alias itself; these override the two whose flags differ.
     shellAliases = {
-      l = "eza -la --git";
-      ll = "eza -la --git";
-      ls = "eza";
+      l = "eza -la";
+      ll = "eza -la";
       cat = "bat --paging=never";
       grep = "rg";
     };
