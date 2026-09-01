@@ -3,10 +3,17 @@
   # PATH additions for the self-updating coding-agent CLIs installed below.
   # Claude Code lives at ~/.local/bin; OpenCode at ~/.opencode/bin; Codex and Pi
   # (installed via bun) at ~/.bun/bin.
+  #
+  # OrbStack (docker CLI, compose, buildx, docker-credential-osxkeychain) wires
+  # its own bin dir up by appending a `source ~/.orbstack/shell/init.zsh` line to
+  # ~/.zprofile — a file home-manager doesn't own, and one that only exists after
+  # the app has been launched once. Declaring the path here keeps `docker` working
+  # from first login on a fresh bootstrap.
   home.sessionPath = [
     "$HOME/.local/bin"
     "$HOME/.opencode/bin"
     "$HOME/.bun/bin"
+    "$HOME/.orbstack/bin"
   ];
 
   # These CLIs self-update from their own installers, so Nix can't sanely
