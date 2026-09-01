@@ -20,7 +20,7 @@
       # modules/home/git.nix includes Lima's generated ssh.config.
       "herdr"
       # omp — coding agent. Tap formula, so it needs the full name to stay
-      # unambiguous in the Brewfile (same as mtplx below).
+      # unambiguous in the Brewfile.
       "can1357/tap/omp"
       # lima — Linux VMs; backs the lima-* ssh aliases. nixpkgs has it (2.1.1)
       # but trails the brew formula (2.2.0), and the VZ backend moves fast.
@@ -41,9 +41,6 @@
       # legacy `huggingface-cli`; bundles hf_xet for accelerated downloads). Canonical
       # name is `hf`, not the `huggingface-cli` alias, so brew bundle tracks it cleanly.
       "hf"
-      # MTPLX — native MTP speculative-decoding runtime for MLX on Apple Silicon.
-      # CLI only; first run `mtplx start` launches an interactive setup wizard.
-      "youssofal/mtplx/mtplx"
     ];
 
     casks = [
@@ -52,7 +49,6 @@
       "brave-browser"
       "chatgpt"
       "claude"
-      "docker-desktop"
       "duckduckgo"
       "geekbench"
       "ghostty"
