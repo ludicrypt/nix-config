@@ -39,6 +39,30 @@
         Port = 443;
         User = "git";
       };
+      # The operator's workstation guest (jarvis ADR-0023). `work` is the direct
+      # path and needs the UniFi Home -> JarvisServices rule; `work-jump` rides
+      # proxmox02 and is the fallback when that rule is gone. No ForwardAgent:
+      # the guest signs with its own key. ControlPath is short because a long
+      # one fails with "ControlPath too long"; keepalives are the client's job
+      # because the node's sshd sets ClientAliveInterval 0.
+      work = {
+        Hostname = "10.137.110.20";
+        User = "ludicrypt";
+        IdentityFile = "~/.ssh/id_ed25519";
+        IdentitiesOnly = "yes";
+        ControlMaster = "auto";
+        ControlPath = "~/.ssh/cm-%C";
+        ControlPersist = "10m";
+        ServerAliveInterval = 30;
+        ServerAliveCountMax = 3;
+      };
+      work-jump = {
+        Hostname = "10.137.110.20";
+        User = "ludicrypt";
+        ProxyJump = "root@10.137.100.11";
+        IdentityFile = "~/.ssh/id_ed25519";
+        IdentitiesOnly = "yes";
+      };
     };
   };
 
