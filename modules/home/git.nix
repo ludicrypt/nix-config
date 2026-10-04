@@ -63,6 +63,14 @@
         IdentityFile = "~/.ssh/id_ed25519";
         IdentitiesOnly = "yes";
       };
+      # Home-manager always emits "*" last, so these only fill gaps. UseKeychain
+      # exists only in Apple's ssh; IgnoreUnknown keeps a nixpkgs ssh (e.g. from
+      # `nix shell`) from rejecting the whole file over it.
+      "*" = {
+        IgnoreUnknown = "UseKeychain";
+        UseKeychain = "yes";
+        AddKeysToAgent = "yes";
+      };
     };
   };
 
