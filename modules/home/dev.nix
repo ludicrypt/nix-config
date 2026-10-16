@@ -11,11 +11,19 @@
   programs.uv.enable = true;
   programs.bun.enable = true;
 
+  # Installs nodejs, the baseline runtime for global tools; fnm overrides it per-project.
+  # The default global prefix is inside the read-only nodejs store path, so
+  # `npm install -g` fails with EACCES without a writable one. Not ~/.npm (the module's
+  # default), which is npm's cache dir.
+  programs.npm = {
+    enable = true;
+    settings.prefix = "\${HOME}/.npm-global";
+  };
+
   home.packages = with pkgs; [
     # python
     pixi
     # typescript / node
-    nodejs   # baseline runtime for global tools (e.g. Codex CLI); fnm overrides per-project
     fnm
     # local LLM inference proxy (see ~/Development/agents/PLAN2.md)
     litellm  # LiteLLM proxy front door; the flake.lock pin must stay >=1.83.10 to clear

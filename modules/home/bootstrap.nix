@@ -13,6 +13,7 @@
     "$HOME/.local/bin"
     "$HOME/.opencode/bin"
     "$HOME/.bun/bin"
+    "$HOME/.npm-global/bin"  # `npm install -g` prefix, set by programs.npm in dev.nix
     "$HOME/.orbstack/bin"
   ];
 
