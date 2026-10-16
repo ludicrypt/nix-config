@@ -30,5 +30,14 @@
              # the security floor. nixpkgs, not brew (no brew formula); the default build
              # bundles the proxy server (fastapi/uvicorn/gunicorn). For S3/bedrock/MCP
              # proxy extras, use litellm.optional-dependencies.proxy instead.
+    # reverse engineering
+    ghidra  # REA's native-analysis engine; REA 6.5.0 accepts the 12.1.x line
   ];
+
+  # Stable paths for REA's GHIDRA_INSTALL_DIR and JAVA_HOME (set in the `rea` MCP
+  # entry in ~/.claude.json): store paths change on every flake update. REA
+  # launches support/analyzeHeadless directly, bypassing the wrapper that would
+  # otherwise supply the JDK.
+  home.file.".local/share/ghidra".source = "${pkgs.ghidra}/lib/ghidra";
+  home.file.".local/share/jdk21".source = pkgs.jdk21.home;
 }
